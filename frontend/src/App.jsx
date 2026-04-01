@@ -7,7 +7,7 @@ import BioEditor from './pages/BioEditor'
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <HashRouter>
       <Routes>
         <Route path="/" element={<Navigate to="/dashboard" />} />
         <Route path="/login" element={<Login />} />
@@ -16,6 +16,6 @@ export default function App() {
         <Route path="/analytics/:linkId" element={<Analytics />} />
         <Route path="/bio" element={<BioEditor />} />
       </Routes>
-    </BrowserRouter>
+    </HashRouter>
   )
 }
