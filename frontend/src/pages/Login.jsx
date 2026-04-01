@@ -61,7 +61,7 @@ export default function Login() {
             <div className="w-8 h-8 bg-[#1c1917] rounded-lg flex items-center justify-center"><svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101" /><path strokeLinecap="round" strokeLinejoin="round" d="M10.172 13.828a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.102 1.101" /></svg></div>
             <span className="text-[16px] font-bold text-[#1c1917]">Pathly</span>
           </div>
-          <h2 className="text-[28px] font-extrabold text-[#1c1917] tracking-[-0.02em]">Welcome back</h2>
+          <h2 className="text-[28px] font-extrabold text-[#1c1917] tracking-[-0.02em]">Welcome to Pathly</h2>
           <p className="text-stone-400 mt-2 text-[15px]">Sign in to your account</p>
           {error && <div className="flex items-center gap-2 bg-red-50 border border-red-100 text-red-600 px-4 py-3 rounded-xl mt-6 text-sm font-medium"><svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01M12 3a9 9 0 110 18 9 9 0 010-18z" /></svg>{error}</div>}
           <form onSubmit={handleSubmit} className="mt-8 space-y-5">
