@@ -47,5 +47,11 @@ npm run dev
 
 👉 App: http://localhost:5173  
 
+## 📸 Screenshots
 
-## 📸 Screenshots  
+<img src="./screenshots/Screenshot 2026-04-01 172217.png" width="800"/>
+
+<img src="./screenshots/Screenshot 2026-04-01 172257.png" width="800"/>
+
+<img src="./screenshots/Screenshot 2026-04-01 172334.png" width="800"/>
+
