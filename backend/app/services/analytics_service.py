@@ -1,9 +1,12 @@
 import hashlib
+import urllib.request
+import json
 from user_agents import parse
 from sqlalchemy.orm import Session
 from sqlalchemy import func, extract
 from app.models.click_event import ClickEvent
 from app.models.link import Link
+
 
 def parse_user_agent(ua_string: str):
     if not ua_string:
@@ -17,6 +20,7 @@ def parse_user_agent(ua_string: str):
         device_type = "desktop"
     browser = ua.browser.family or "unknown"
     return device_type, browser
+
 
 def parse_referrer(referrer: str) -> str:
     if not referrer:
@@ -41,8 +45,29 @@ def parse_referrer(referrer: str) -> str:
     except:
         return "direct"
 
+
 def hash_ip(ip: str) -> str:
     return hashlib.sha256(ip.encode()).hexdigest()
+
+
+def lookup_geo(ip: str) -> tuple:
+    """Look up country and city from IP using free ip-api.com service.
+    Returns (country_code, city) or (None, None) on failure.
+    Skips private/local IPs gracefully."""
+    if not ip or ip in ("127.0.0.1", "::1", "localhost", "0.0.0.0"):
+        return None, None
+    try:
+        # ip-api.com free tier: 45 req/min, no key needed
+        url = f"http://ip-api.com/json/{ip}?fields=status,countryCode,city"
+        req = urllib.request.Request(url, headers={"User-Agent": "Pathly/1.0"})
+        with urllib.request.urlopen(req, timeout=2) as resp:
+            data = json.loads(resp.read().decode())
+            if data.get("status") == "success":
+                return data.get("countryCode"), data.get("city")
+    except Exception:
+        pass
+    return None, None
+
 
 def log_click_event(
     db: Session,
@@ -55,15 +80,20 @@ def log_click_event(
     referrer_parsed = parse_referrer(referrer)
     ip_hash = hash_ip(ip) if ip else None
 
+    country, city = lookup_geo(ip)
+
     event = ClickEvent(
         link_id=link_id,
         device_type=device_type,
         browser=browser,
         referrer=referrer_parsed,
         ip_hash=ip_hash,
+        country=country,
+        city=city,
     )
     db.add(event)
     db.commit()
+
 
 def get_analytics(db: Session, link_id: int) -> dict:
     total_clicks = db.query(func.count(ClickEvent.id)).filter(
@@ -108,6 +138,28 @@ def get_analytics(db: Session, link_id: int) -> dict:
         for h in range(24)
     ]
 
+    # Geo/location analytics
+    location_rows = db.query(
+        ClickEvent.country,
+        func.count(ClickEvent.id).label("count")
+    ).filter(
+        ClickEvent.link_id == link_id,
+        ClickEvent.country.isnot(None)
+    ).group_by(ClickEvent.country).order_by(
+        func.count(ClickEvent.id).desc()
+    ).limit(10).all()
+
+    city_rows = db.query(
+        ClickEvent.city,
+        ClickEvent.country,
+        func.count(ClickEvent.id).label("count")
+    ).filter(
+        ClickEvent.link_id == link_id,
+        ClickEvent.city.isnot(None)
+    ).group_by(ClickEvent.city, ClickEvent.country).order_by(
+        func.count(ClickEvent.id).desc()
+    ).limit(5).all()
+
     return {
         "total_clicks": total_clicks,
         "devices": [
@@ -123,4 +175,12 @@ def get_analytics(db: Session, link_id: int) -> dict:
             for r in referrer_rows
         ],
         "hourly": hourly_data,
+        "locations": [
+            {"country": r.country, "count": r.count}
+            for r in location_rows
+        ],
+        "cities": [
+            {"city": r.city, "country": r.country, "count": r.count}
+            for r in city_rows
+        ],
     }

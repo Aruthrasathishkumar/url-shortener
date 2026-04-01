@@ -7,6 +7,7 @@ class LinkCreateRequest(BaseModel):
     custom_code: Optional[str] = None
     max_clicks: Optional[int] = None
     expires_at: Optional[datetime] = None
+    expire_days: Optional[int] = None
     is_one_time: bool = False
 
 class LinkResponse(BaseModel):

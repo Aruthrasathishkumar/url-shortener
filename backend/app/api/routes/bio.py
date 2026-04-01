@@ -181,17 +181,7 @@ def get_public_bio(username: str, db: Session = Depends(get_db)):
     links_html = ""
     for l in links:
         links_html += f"""
-        <a href="{l.url}" target="_blank" rel="noreferrer"
-           style="display:block; width:100%; padding:16px 24px;
-                  background:rgba(255,255,255,0.08);
-                  border:1px solid rgba(255,255,255,0.12);
-                  border-radius:12px; color:#ffffff;
-                  text-decoration:none; font-size:15px;
-                  font-weight:500; text-align:center;
-                  transition:background 0.2s;"
-           onmouseover="this.style.background='rgba(255,255,255,0.15)'"
-           onmouseout="this.style.background='rgba(255,255,255,0.08)'"
-        >
+        <a href="{l.url}" target="_blank" rel="noreferrer" class="link-btn">
             {l.title}
         </a>
         """
@@ -204,81 +194,122 @@ def get_public_bio(username: str, db: Session = Depends(get_db)):
     <head>
         <meta charset="UTF-8"/>
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-        <title>{bio.bio_title or username} | LinkIQ</title>
+        <title>{bio.bio_title or username} | Pathly</title>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
         <style>
             * {{ margin:0; padding:0; box-sizing:border-box; }}
             body {{
                 min-height: 100vh;
-                background: linear-gradient(135deg, {bio.theme_color}22 0%, #0a0a0a 60%);
-                background-color: #0f0f0f;
-                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                padding: 40px 20px;
-            }}
-            .card {{
-                width: 100%;
-                max-width: 480px;
+                background-color: #F9FAFB;
+                font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
                 display: flex;
                 flex-direction: column;
                 align-items: center;
-                gap: 12px;
+                padding: 56px 20px 40px;
+                -webkit-font-smoothing: antialiased;
+            }}
+            .profile {{
+                width: 100%;
+                max-width: 400px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                flex: 1;
             }}
             .avatar {{
-                width: 80px;
-                height: 80px;
+                width: 96px;
+                height: 96px;
                 border-radius: 50%;
                 background: {bio.theme_color};
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                font-size: 28px;
+                font-size: 36px;
                 font-weight: 700;
                 color: white;
-                margin-bottom: 4px;
+                margin-bottom: 16px;
+                box-shadow: 0 4px 24px {bio.theme_color}33;
             }}
             .name {{
-                font-size: 22px;
+                font-size: 20px;
                 font-weight: 700;
-                color: #ffffff;
+                color: #111827;
                 text-align: center;
+                letter-spacing: -0.02em;
             }}
-            .bio {{
+            .handle {{
                 font-size: 14px;
-                color: #9ca3af;
+                color: #9CA3AF;
+                margin-top: 4px;
+            }}
+            .bio-text {{
+                font-size: 14px;
+                color: #6B7280;
                 text-align: center;
-                margin-bottom: 8px;
-                line-height: 1.5;
+                margin-top: 12px;
+                line-height: 1.6;
+                max-width: 320px;
             }}
             .links {{
                 width: 100%;
                 display: flex;
                 flex-direction: column;
-                gap: 10px;
-                margin-top: 8px;
+                gap: 12px;
+                margin-top: 32px;
             }}
-            .footer {{
-                margin-top: 24px;
-                font-size: 12px;
-                color: #4b5563;
-            }}
-            .footer a {{
+            .link-btn {{
+                display: block;
+                width: 100%;
+                padding: 14px 20px;
+                background: white;
+                border: 1.5px solid {bio.theme_color}30;
+                border-radius: 14px;
                 color: {bio.theme_color};
                 text-decoration: none;
+                font-size: 14px;
+                font-weight: 600;
+                text-align: center;
+                transition: all 0.2s ease;
+                letter-spacing: -0.01em;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+            }}
+            .link-btn:hover {{
+                background: {bio.theme_color}08;
+                transform: translateY(-1px);
+                box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+            }}
+            .link-btn:active {{
+                transform: scale(0.98);
+            }}
+            .empty {{
+                color: #9CA3AF;
+                font-size: 14px;
+                text-align: center;
+                padding: 24px 0;
+            }}
+            .footer {{
+                margin-top: 48px;
+                font-size: 11px;
+                color: #D1D5DB;
+                letter-spacing: 0.02em;
+            }}
+            .footer span {{
+                color: #9CA3AF;
+                font-weight: 600;
             }}
         </style>
     </head>
     <body>
-        <div class="card">
+        <div class="profile">
             <div class="avatar">{initials}</div>
             <p class="name">{bio.bio_title or username}</p>
-            <p class="bio">{bio.bio_description or ""}</p>
+            <p class="handle">@{username}</p>
+            {f'<p class="bio-text">{bio.bio_description}</p>' if bio.bio_description else ''}
             <div class="links">
-                {links_html if links_html else '<p style="color:#4b5563;font-size:14px;text-align:center">No links yet</p>'}
+                {links_html if links_html else '<p class="empty">No links yet</p>'}
             </div>
-            <p class="footer">Powered by <a href="http://localhost:5173">LinkIQ</a></p>
         </div>
+        <p class="footer">Powered by <span>Pathly</span></p>
     </body>
     </html>
     """

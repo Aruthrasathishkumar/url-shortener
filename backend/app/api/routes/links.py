@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 from fastapi import APIRouter, Depends, HTTPException, Request, BackgroundTasks
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
@@ -41,12 +42,16 @@ def create_link(
     else:
         short_code = None
 
+    expires_at = request_data.expires_at
+    if request_data.expire_days and request_data.expire_days > 0:
+        expires_at = datetime.utcnow() + timedelta(days=request_data.expire_days)
+
     new_link = Link(
         user_id=user_id,
         short_code=short_code or "temp",
         original_url=str(request_data.original_url),
         max_clicks=request_data.max_clicks,
-        expires_at=request_data.expires_at,
+        expires_at=expires_at,
         is_one_time=request_data.is_one_time,
     )
     db.add(new_link)
@@ -112,6 +117,25 @@ def get_link_analytics(
     if not link:
         raise HTTPException(status_code=404, detail="Link not found")
     return get_analytics(db, link_id)
+
+
+@router.delete("/links/{link_id}", status_code=200)
+def delete_link(
+    link_id: int,
+    request: Request,
+    db: Session = Depends(get_db)
+):
+    user_id = get_current_user_id(request)
+    link = db.query(Link).filter(
+        Link.id == link_id,
+        Link.user_id == user_id
+    ).first()
+    if not link:
+        raise HTTPException(status_code=404, detail="Link not found")
+    invalidate_cache(link.short_code)
+    db.delete(link)
+    db.commit()
+    return {"message": "Link deleted"}
 
 
 def record_click(link_id: int, ua: str, referrer: str, ip: str, db: Session):
