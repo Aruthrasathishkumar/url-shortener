@@ -18,11 +18,9 @@ Pathly is a production-style URL shortener with analytics, smart link control, a
 - ⏱️ Smart expiry (time, clicks, one-time use)  
 - 🌐 Link-in-bio pages (`/@username`)  
 
-## 🧠 Architecture  
+## 🧠 System Architecture  
 
-```
-React → FastAPI → Redis + MySQL
-```
+<img src="./screenshots/Pathly system architecture.png" width="800"/>
 
 ## ⚙️ Local Setup  
 
