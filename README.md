@@ -4,7 +4,7 @@
 **Shorten · Track · Understand · Control**
 
 ## 🚀 Live Demo  
-👉 https://aruthrasathishkumar.github.io/url-shortener/
+👉 https://aruthrasathish.github.io/url-shortener/
 
 > ⚠️ Full functionality requires running the backend locally
 
